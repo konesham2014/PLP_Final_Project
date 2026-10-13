@@ -44,6 +44,7 @@ df = pd.DataFrame(list(footprint_per_activity.items()), columns=["Activity", "CO
 fig, ax = plt.subplots()
 ax.bar(df["Activity"], df["CO2 (kg)"], color="green")
 ax.set_ylabel("CO2 Emissions (kg)")
+ax.set_xticks(range(len(df["Activity"])))
 ax.set_xticklabels(df["Activity"], rotation=45, ha="right")
 st.pyplot(fig)
 
