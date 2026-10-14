@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Carbon Footprint Tracker</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.73.1/build/stlite.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.73.1/build/stlite.js"></script>
+    <script>
+      stlite.mount(
+        {
+          requirements: ["pandas", "matplotlib"],
+          entrypoint: "carbon_footprint_app.py",
+          files: {
+            "carbon_footprint_app.py": `import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
+st.set_page_config(page_title="Carbon Footprint Tracker", page_icon="🌱", layout="centered")
+st.title("🌱 Carbon Footprint Tracker")
+st.write("Enter your daily activities to calculate and visualize your carbon footprint.")
+
+# User Inputs
+st.header("Daily Activities")
+transport = st.number_input("Distance traveled by car (km)", min_value=0.0)
+public_transport = st.number_input("Distance traveled by public transport (km)", min_value=0.0)
+electricity = st.number_input("Electricity used (kWh)", min_value=0.0)
+diet_meat = st.number_input("Meat meals consumed", min_value=0)
+diet_veggies = st.number_input("Vegetarian meals consumed", min_value=0)
+
+# Carbon footprint factors (kg CO2/unit)
+factors = {
+    "Car travel": 0.21,
+    "Public transport": 0.05,
+    "Electricity": 0.45,
+    "Meat meals": 2.5,
+    "Vegetarian meals": 0.5
+}
+
+# Calculate footprint
+activities = {
+    "Car travel": transport,
+    "Public transport": public_transport,
+    "Electricity": electricity,
+    "Meat meals": diet_meat,
+    "Vegetarian meals": diet_veggies
+}
+
+footprint_per_activity = {k: v * factors[k] for k, v in activities.items()}
+total_footprint = sum(footprint_per_activity.values())
+
+st.subheader("🌍 Your Daily Carbon Footprint")
+st.success(f"{total_footprint:.2f} kg CO2")
+
+# Visualization
+st.subheader("Breakdown by Activity")
+df = pd.DataFrame(list(footprint_per_activity.items()), columns=["Activity", "CO2 (kg)"])
+fig, ax = plt.subplots()
+ax.bar(df["Activity"], df["CO2 (kg)"], color="green")
+ax.set_ylabel("CO2 Emissions (kg)")
+ax.set_xticklabels(df["Activity"], rotation=45, ha="right")
+st.pyplot(fig)
+
+# Download CSV
+csv_data = pd.DataFrame(list(footprint_per_activity.items()), columns=["Activity", "CO2 (kg)"])
+st.download_button("📥 Download Report", csv_data.to_csv(index=False), "carbon_footprint.csv", "text/csv")
+
+# Tips
+st.header("Tips to Reduce Carbon Footprint")
+st.write("""
+- Use public transport or bike instead of a car.
+- Reduce electricity usage at home.
+- Eat more plant-based meals.
+- Avoid unnecessary flights.
+""")
+`,
+          },
+        },
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>
